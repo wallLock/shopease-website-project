@@ -1,0 +1,54 @@
+<!-- Account Settings Page HTML -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ... (your existing head content) ... -->
+    <style>
+        /* Style for clickable text boxes */
+        .clickable-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Account Settings</h2>
+
+        <!-- Clickable text box for "View My Profile" -->
+        <div class="clickable-box" onclick="goToViewProfile()">
+            <p>View My Profile</p>
+        </div>
+
+        <!-- Clickable text box for "Manage Password" -->
+        <div class="clickable-box" onclick="goToChangePassword()">
+            <p>Manage Password</p>
+        </div>
+
+        <div class = "clickable-box" onclick="goToChangeEmail()">
+            <p>Change Email</p>
+        </div>
+        <a href="/api/dashboard">Back to Dashboard</a>
+    </div>
+    
+
+    <script>
+        // Functions to handle clicks on the clickable boxes
+        function goToViewProfile() {
+            // Redirect to the View Profile page
+            window.location.href = '/api/manageprofile'; 
+        }
+
+        function goToChangePassword() {
+            // Redirect to the Change Password page
+            window.location.href = '/api/changepassword'; 
+        }
+
+        function goToChangeEmail(){
+            window.location.href = '/api/changeEmail';
+        }
+    </script>
+</body>
+</html>

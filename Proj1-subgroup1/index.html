@@ -1,0 +1,202 @@
+<!--Created by Rui Zhang-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 800px; /* Adjusted max-width for a larger box */
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .container h2 {
+            margin: 0;
+            padding-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #loginError {
+            color: red;
+            margin: 10px 0;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .password-container {
+    position: relative;
+}
+
+.eye-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none; /* Prevent text selection on double-click */
+}
+
+/* Adjust input styles to accommodate the eye icon */
+input[type="password"] {
+    padding-right: 30px; /* Space for the eye icon */
+    width: calc(100%); /* Adjust the width to make space for the eye icon */
+    box-sizing: border-box; /* Include padding and border in the total width */
+}
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <div>
+            <label for="emailOrUsername">Email or Username:</label>
+            <input type="text" id="emailOrUsername" placeholder="Enter your email or username">
+            <span class="error-message" id="emailOrUsernameError"></span>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <div class="password-container">
+                <input type="password" id="password" placeholder="Enter your password">
+                <span class="error-message" id="passwordError"></span>
+                <div class="eye-icon" onclick="togglePasswordVisibility()">&#128065;</div>
+            </div>
+        </div>
+        <button onclick="login()">Login</button>
+        <p id="loginError"></p>
+        <a href="signup">Signup</a> <!-- Link to the signup page -->
+        <a href="resetPasswordRequest">Forgot Password?</a> <!-- Link to the signup page -->
+        <div>
+            <button onclick="viewTerms()">Term agreements</button>
+        </div>
+        
+    </div>
+
+    <script>
+    function login() {
+    const emailOrUsername = document.getElementById('emailOrUsername').value;
+    const password = document.getElementById('password').value;
+
+    // Reset previous error messages
+    document.getElementById('emailOrUsernameError').innerText = '';
+    document.getElementById('passwordError').innerText = '';
+    document.getElementById('loginError').innerText = '';
+
+    // Check if email or username and password fields are empty
+    if (emailOrUsername.trim() === '') {
+        document.getElementById('emailOrUsernameError').innerText = 'Email or username is required';
+        return; // Stop the login process
+    }
+
+    if (password.trim() === '') {
+        document.getElementById('passwordError').innerText = 'Password is required';
+        return; // Stop the login process
+    }
+
+    // Prepare the data for the POST request
+    const userData = { emailOrUsername, password };
+
+    // Send a POST request to the server for login
+    fetch('/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === 'Login successful') {
+            // Save the JWT token to local storage
+            const token = data.token;
+            localStorage.setItem('token', token);
+
+            // Redirect to a different page (e.g., user dashboard)
+            window.location.href = '/api/dashboard';
+        } else {
+            document.getElementById('loginError').innerText = data.message;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('loginError').innerText = 'An error occurred during login.';
+    });
+}
+    
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.querySelector('.eye-icon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.innerHTML = '&#128064;'; // Change eye icon to closed eye
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.innerHTML = '&#128065;'; // Change eye icon to open eye
+            }
+        }
+
+
+        function viewTerms(){
+            alert(`Unique Email Addresses: Require customers to use a unique email address 
+            for each account to prevent duplicate or fake accounts.
+
+
+            Password Strength: Enforce strong password requirements
+            upper and lower case letters and numbers with minimu 8 digits.
+            Authentication and Authorization: using token at all time and hashed password to ensure account security
+
+            Password Recovery: Establish a secure process (sent link by email) for customers to recover their account in case they forget their password.
+
+            Identity Verification: Implement identity verification steps to ensure the rightful account owner is recovering the account.
+Terms of Service and Policies:
+            `)
+        }
+    </script>
+</body>
+</html>

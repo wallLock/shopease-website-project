@@ -1,0 +1,170 @@
+<!-- View Profile Page HTML with Authorization Token -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .container h2 {
+            margin: 0;
+            padding-bottom: 10px;
+        }
+
+        p {
+            margin: 20px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .edit-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .editable {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+
+        .edit-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>My Profile</h2>
+        <div id="profileInfo">
+            <!-- User profile information will be displayed here -->
+        </div>
+        <a href="/api/accountsettings">Back to Account Settings</a>
+
+        <script>
+            // Retrieve the authentication token from storage
+            const authToken = localStorage.getItem('token');
+
+            // Fetch user profile information
+            fetch('/manageprofile', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display user profile information
+                const profileInfoElement = document.getElementById('profileInfo');
+
+                // Create editable text entries
+                const usernameEntry = createEditableEntry('Username', data.username);
+                const emailEntry = createEditableEntry('Email', data.email);
+                const phoneEntry = createEditableEntry('Phone', data.phone);
+                const addressEntry = createEditableEntry('Address', data.address);
+
+                // Append entries to the container
+                profileInfoElement.appendChild(usernameEntry);
+                profileInfoElement.appendChild(emailEntry);
+                profileInfoElement.appendChild(phoneEntry);
+                profileInfoElement.appendChild(addressEntry);
+            })
+            .catch(error => {
+                console.error('Error fetching profile:', error);
+                // Handle error (e.g., redirect to login page)
+            });
+
+            function createEditableEntry(label, value) {
+                const container = document.createElement('div');
+                container.classList.add('edit-container');
+                const entry = document.createElement('div');
+                entry.classList.add('editable');
+                entry.textContent = `${label}: ${value}`;
+                
+                const editButton = document.createElement('button');
+                editButton.classList.add('edit-button');
+                editButton.textContent = 'Edit';
+                editButton.addEventListener('click', () => {
+                    const newValue = prompt(`Enter new ${label}:`, value);
+                    if (newValue !== null) {
+                        // Send the updated value to the server
+                        updateProfileData(label.toLowerCase(), newValue, (response) => {
+                            // Update the UI if the server update was successful
+                            if (response.message =="Update successful") {
+                                entry.textContent = `${label}: ${newValue}`;
+                            }
+
+                             else {
+                                alert(response.message);
+                            }
+                        });
+                    }
+                });
+                container.appendChild(entry);
+                container.appendChild(editButton);
+                return container;
+            }
+
+            function updateProfileData(property, value, callback) {
+                // Retrieve the authentication token from storage
+                const authToken = localStorage.getItem('token');
+                console.log(JSON.stringify({ [property]: value }));
+                // Send the updated value to the server
+                fetch('/manageprofile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ [property]: value })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Update successful') {
+                        console.log('Update successful');
+                        // Do something for success
+                    } else {
+                        console.log(data.message);
+                        // Do something for failure
+                    }
+                    // Invoke the callback with the server's response
+                    callback(data);
+                })
+                .catch(error => {
+                    console.error('Error updating profile:', error.message);
+                    // Handle error
+                    callback({message: `Error updating profile: ${error.message}` });
+                });
+                
+            }
+        </script>
+    </div>
+</body>
+</html>
